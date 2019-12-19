@@ -1,0 +1,2 @@
+create table user(userid int primary key not null auto_increment, username varchar(30));
+create table chat(message_id int primary key not null auto_increment, fromid varchar(30), toid varchar(30), message longtext, seen varchar(5), timestamp varchar(25));
