@@ -85,16 +85,31 @@ public class SearchDao {
 				Encryption encryption = new Encryption();
 				String decrypted_message = encryption.decrypt(encrypted_message, secretKey);
 				
-				if(result.getString(2).equals(username)){
+				if(result.getString(2).equals(username) && result.getString(5).equals("true")){
 					sublist.add('"' + result.getString(2) + '"');
 					sublist.add('"' + decrypted_message + '"');
-					sublist.add('"' + "sent" + '"');
+					sublist.add('"' + "sentandseen" + '"');
 					sublist.add('"' + result.getString(5) + '"');
 					sublist.add('"' + result.getString(6) + '"');
-				}else if(result.getString(3).equals(username)){
+				}
+				else if(result.getString(2).equals(username) && result.getString(5).equals("false")) {
+					sublist.add('"' + result.getString(2) + '"');
+					sublist.add('"' + decrypted_message + '"');
+					sublist.add('"' + "sentandunseen" + '"');
+					sublist.add('"' + result.getString(5) + '"');
+					sublist.add('"' + result.getString(6) + '"');
+				}
+				else if(result.getString(3).equals(username) && result.getString(5).equals("true")){
 					sublist.add('"' + result.getString(3) + '"');
 					sublist.add('"' + decrypted_message + '"');
-					sublist.add('"' + "received" + '"');
+					sublist.add('"' + "receivedandseen" + '"');
+					sublist.add('"' + result.getString(5) + '"');
+					sublist.add('"' + result.getString(6) + '"');
+				}
+				else if(result.getString(3).equals(username) && result.getString(5).equals("false")){
+					sublist.add('"' + result.getString(3) + '"');
+					sublist.add('"' + decrypted_message + '"');
+					sublist.add('"' + "receivedandunseen" + '"');
 					sublist.add('"' + result.getString(5) + '"');
 					sublist.add('"' + result.getString(6) + '"');
 				}
@@ -142,7 +157,7 @@ public class SearchDao {
 				
 		String output = "";
 		try {
-			String chat_between_query = "select fromid, toid, message from chat where (fromid=? and toid=?) or (fromid=? and toid=?) order by message_id desc limit 1"; 
+			String chat_between_query = "select fromid, toid, message, seen from chat where (fromid=? and toid=?) or (fromid=? and toid=?) order by message_id desc limit 1"; 
 			con = DBConnection.createConnection();
 			ps = con.prepareStatement(chat_between_query);
 			ps.setString(1, username);
@@ -159,7 +174,12 @@ public class SearchDao {
 				output += decrypted_message + ",";
 				
 				if(result.getString(1).equals(username) && result.getString(2).equals(tousername)){
-					output += "sent";
+					if(result.getString(4).equals("true")) {
+						output += "sentandseen";
+					}else {
+						output += "sentandunseen";
+					}
+					
 				}else if(result.getString(2).equals(username) && result.getString(1).equals(tousername)){
 					output += "received";
 				}
@@ -171,4 +191,5 @@ public class SearchDao {
 		}
 		return null;
 	}
+	
 }
